@@ -1,16 +1,14 @@
 <template>
   <div class="home">
-    <Form msg="Welcome to Your Vue.js App" />
+    <Form />
   </div>
 </template>
 
-<script>
-import Form from "@/components/Form.vue";
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator';
+import Form from "../components/Form.vue";
 
-export default {
-  name: "Home",
-  components: {
-    Form,
-  },
-};
+@Component({ components: { Form } })
+export default class Home extends Vue {
+}
 </script>

@@ -63,56 +63,46 @@
   </div>
 </template>
 
-<script>
-import { mapState } from "vuex";
-import { db } from "./../firebase";
-import { debounce } from "debounce";
-export default {
-  data() {
-    return {
-      state: "loading",
-      formData: {},
-    };
-  },
-  computed: {
-    ...mapState(["users"]),
-  },
-  watch: {
-    users(val) {
-      if (val && val.length > 0) {
-        this.formData = val[0];
-      } else {
-        this.formData = {
-          name: "",
-          phone: "",
-          email: "",
-          address: "",
-          country: "",
-        };
-      }
-    },
-  },
-  created() {
-    this.$store.dispatch("bindUsers")
-  },
-  methods: {
-    async updateFirebase() {
-      try {
-        await db.doc("users/mubina").update(this.formData);
-        this.state = "synced";
-      } catch (error) {
-        this.state = "error";
-      }
-    },
-    fieldUpdate() {
-      this.state = "modified";
-      this.debouncedUpdate();
-    },
-    debouncedUpdate: debounce(function() {
-      this.updateFirebase();
-    }, 2000),
-  },
-};
-</script>
+<script lang="ts">
+import { Component, Vue, Watch } from "vue-property-decorator";
+import store from '../store'
+import { db } from "../firebase";
 
-<style></style>
+@Component
+export default class Form extends Vue {
+
+  get formData() {
+    let users: any = store.state.users
+    let data: any;
+    if (users && users.length > 0) {
+        data = users[0];
+      } else {
+        data = {}
+      }
+    return data
+  }
+
+  @Watch('users')
+
+  created() {
+    store.dispatch("bindUsers")
+  }
+
+  async updateFirebase() {
+    try {
+      await db.doc("users/mubina").update(this.formData);
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  fieldUpdate() {
+    this.debouncedUpdate();
+  }
+  debouncedUpdate(){
+    setTimeout(()=> {
+      this.updateFirebase();
+    }, 2000)
+  }
+
+}
+</script>
